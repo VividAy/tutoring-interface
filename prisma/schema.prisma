@@ -5,8 +5,12 @@
 // checklist of Achievements grouped into the form's five categories.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
+  // "native" covers local dev (macOS); "rhel-openssl-3.0.x" is Vercel's
+  // serverless function runtime — without it, prisma generate only builds
+  // the engine for whichever OS ran it, and Vercel can't find one at runtime.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
