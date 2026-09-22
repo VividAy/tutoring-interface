@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #08090c;
+  --color-bg-elevated: #0d0f14;
+  --color-surface: #12151b;
+  --color-surface-2: #191d26;
+  --color-border: #262b35;
+  --color-border-soft: #1a1e27;
+
+  --color-navy: #1e3a8a;
+  --color-navy-light: #3355b0;
+  --color-navy-soft: #14245c;
+
+  --color-gold: #f5c518;
+  --color-gold-dark: #c9a007;
+  --color-gold-soft: #3a300c;
+
+  --color-ink: #f4f5f7;
+  --color-muted: #9aa1ac;
+  --color-muted-2: #666e7a;
+
+  --color-danger: #e35d5d;
+  --color-success: #4fb87a;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-border: var(--color-border);
+  --color-border-soft: var(--color-border-soft);
+  --color-navy: var(--color-navy);
+  --color-navy-light: var(--color-navy-light);
+  --color-navy-soft: var(--color-navy-soft);
+  --color-gold: var(--color-gold);
+  --color-gold-dark: var(--color-gold-dark);
+  --color-gold-soft: var(--color-gold-soft);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-muted-2: var(--color-muted-2);
+  --color-danger: var(--color-danger);
+  --color-success: var(--color-success);
+  --font-sans: var(--font-sans);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(30, 58, 138, 0.35), transparent 42%),
+    radial-gradient(circle at 88% 0%, rgba(245, 197, 24, 0.08), transparent 38%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: #14161b;
+}
+
+* {
+  scrollbar-color: var(--color-border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

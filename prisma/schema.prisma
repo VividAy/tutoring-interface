@@ -1,0 +1,70 @@
+// LVAEP Tutor Portal — data model
+// Mirrors the paper "Student Monthly Attendance & Achievement Form":
+// a Tutor works with many Students; each Student has logged tutoring
+// Sessions (date + hours, or an internal absence/holiday code) and a
+// checklist of Achievements grouped into the form's five categories.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tutor {
+  id        String    @id @default(cuid())
+  name      String
+  email     String?
+  password  String    @default("sample_pass")
+  color     String    @default("#f5c518")
+  createdAt DateTime  @default(now())
+  students  Student[]
+}
+
+model Student {
+  id            String        @id @default(cuid())
+  name          String
+  tutorId       String
+  tutor         Tutor         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  site          String? // Tutoring Site
+  days          String? // Day(s)
+  times         String? // Time(s)
+  color         String        @default("#1e3a8a")
+  stopped       Boolean       @default(false)
+  stoppedReason String?
+  stoppedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  sessions      Session[]
+  achievements  Achievement[]
+}
+
+// One row per tutoring session (or a non-hour day: absence/holiday).
+model Session {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      DateTime
+  hours     Float    @default(0)
+  code      String? // TA (Tutor Absent) | SA (Student Absent) | H (Holiday) | null
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// One row per achievement the tutor has checked off for a student.
+// `key` matches an id in src/lib/achievements.ts for catalog items,
+// or is a generated id for a free-text "Other" entry (label holds the text).
+model Achievement {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  category   String // economic | educational | family | societal | other
+  key        String
+  label      String
+  attainedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([studentId, category, key])
+}
