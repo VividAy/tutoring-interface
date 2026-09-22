@@ -16,7 +16,7 @@ and admins pull a per-tutor report from the same data.
 
 ## Stack
 
-Next.js (App Router, Server Actions) + Prisma + SQLite + Tailwind CSS + pdfkit.
+Next.js (App Router, Server Actions) + Prisma + PostgreSQL + Tailwind CSS + pdfkit.
 
 ## Access / passwords
 
@@ -61,14 +61,19 @@ raw data dump. See [`src/lib/report.ts`](src/lib/report.ts) (CSV) and
 
 ## Running locally
 
+This app uses a real Postgres database (not a local file), even for
+development — see **Deploying to Vercel** below for how to get one for
+free in a couple of minutes. Once you have a connection string:
+
 ```bash
 npm install
+# put your connection string in .env as DATABASE_URL=...
+npx prisma migrate dev --name init   # first time only: creates the schema
+npx prisma db seed                   # optional: load 3 sample tutors / 6 students
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The SQLite database
-(`prisma/dev.db`) comes pre-seeded with 3 sample tutors and 6 students so
-there's data to click around immediately.
+Open [http://localhost:3000](http://localhost:3000).
 
 ### Useful commands
 
@@ -88,19 +93,23 @@ entered per student.
 
 ## Deploying to Vercel
 
-This currently runs on a local SQLite file, which won't work on Vercel's
-serverless functions (no persistent writable disk). Before deploying:
+See the full step-by-step walkthrough (GitHub push, database setup, Vercel
+import, env vars) in the project chat — the short version:
 
-1. Provision a hosted Postgres database (e.g. Vercel Postgres, Neon, or
-   Supabase) and set `DATABASE_URL` to its connection string in your Vercel
-   project's environment variables.
-2. In `prisma/schema.prisma`, change the datasource provider from `sqlite`
-   to `postgresql`.
-3. Run `npx prisma migrate dev` once locally against the new database to
-   create the schema (or `npx prisma migrate deploy` in your deploy step).
-4. Push to a Git repo and import it in Vercel — no other code changes are
-   needed.
-5. Also set `ADMIN_PASSWORD` and `AUTH_SECRET` in Vercel's environment
-   variables (see **Access / passwords** above) — without them the app
-   falls back to the dev defaults, which is fine for testing but not for
-   a real deployment.
+1. Get a Postgres connection string (Vercel's Storage tab, powered by Neon,
+   is the easiest — see below) and put it in `.env` as `DATABASE_URL`.
+2. `npx prisma migrate dev --name init` locally to create and commit the
+   first migration.
+3. Push this repo to GitHub, import it in Vercel.
+4. In the Vercel project's Environment Variables, set `DATABASE_URL`
+   (auto-filled if you used Vercel's own Postgres storage), `ADMIN_PASSWORD`,
+   and `AUTH_SECRET`.
+5. Deploy. `npm run build` already runs `prisma migrate deploy` first, so
+   every deploy keeps the production schema in sync automatically.
+
+Because every request — from every visitor, on every serverless
+invocation — connects to that same Postgres database over the network
+(instead of a local SQLite file that only exists on one ephemeral
+container), data one person saves is immediately visible to the next
+person who loads the page. That's what makes the deployed app's data
+consistent across users.
