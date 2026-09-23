@@ -5,12 +5,15 @@
 // checklist of Achievements grouped into the form's five categories.
 
 generator client {
-  provider      = "prisma-client"
-  output        = "../src/generated/prisma"
-  // "native" covers local dev (macOS); "rhel-openssl-3.0.x" is Vercel's
-  // serverless function runtime — without it, prisma generate only builds
-  // the engine for whichever OS ran it, and Vercel can't find one at runtime.
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
+  // "client" = no native query-engine binary at all — the generated client
+  // is pure JS/WASM and only talks to the database through the adapter
+  // passed to `new PrismaClient({ adapter })` in src/lib/prisma.ts. Without
+  // this, the client is still built against the native "library" engine
+  // runtime and keeps trying to load a compiled binary even when an adapter
+  // is provided, which is what was actually causing every prior failure.
+  engineType = "client"
 }
 
 datasource db {
